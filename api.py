@@ -166,15 +166,6 @@ api.add_middleware(
     allow_headers=["*"],
 )
 
-app = FastAPI(title="main app")
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=origins,
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
-
 # This will store our in-memory data
 
 DATA_STORAGE = {"dates": [], "games": {}, "latest_date": None}
@@ -258,11 +249,9 @@ class SPAStaticFiles(StaticFiles):
                 raise ex
 
 
-app.mount("/api", api, name="api")
-app.mount("/", SPAStaticFiles(directory="project/dist", html=True), name="app")
 
 
-@app.on_event("startup")
+@api.on_event("startup")
 async def load_data_on_startup():
     locked_path = Path(os.environ.get("DATA_PATH", "")) / "locked"
     all_locked_games = get_locked_games(locked_path)
@@ -292,4 +281,4 @@ if __name__ == "__main__":
     parser.add_argument("--data_path", default=None, help="The path of the data folder")
     args = parser.parse_args()
     os.environ["DATA_PATH"] = args.data_path
-    uvicorn.run("api:app", host="0.0.0.0", port=8000)
+    uvicorn.run("api:api", host="0.0.0.0", port=80)
