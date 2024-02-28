@@ -9,7 +9,7 @@ ENV DATA_PATH=/bjorlileika_api/data/
 
 # Install git, python3, and pip, then install the required Python packages
 RUN apk add --no-cache git python3 py3-pip \
-    && pip3 install uvicorn[standard] fastapi pydantic gunicorn
+    && pip3 install --break-system-packages uvicorn[standard] fastapi pydantic gunicorn
 
 # Clone the Git repository
 RUN git clone https://github.com/roar-emaus/bjorlileika_api.git .
