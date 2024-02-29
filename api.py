@@ -174,7 +174,7 @@ DATA_STORAGE = {"dates": [], "games": {}, "latest_date": None}
 @api.get("/date/")
 async def root() -> BjorliGame:
     return BjorliGame(
-        date="2023-01",
+        date="2024-03",
         locked=False,
         games=[Game(name="No name", scores={"No name": 1})],
         players=["No name"],
@@ -192,7 +192,7 @@ async def get_date_data(date: str) -> BjorliGame:
 
     if not games:
         return BjorliGame(
-            date="2023-01",
+            date="2024-03",
             locked=False,
             games=[Game(name="No name", scores={"No name": 1})],
             players=["No name"],
