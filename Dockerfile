@@ -15,4 +15,4 @@ RUN apk add --no-cache git python3 py3-pip \
 RUN git clone https://github.com/roar-emaus/bjorlileika_api.git .
 
 # Set the default command to run when starting the container
-CMD ["gunicorn", "-w", "4", "-k", "uvicorn.workers.UvicornWorker", "api:api", "--bind", "0.0.0.0:80"]
+CMD ["gunicorn", "-w", "1", "-k", "uvicorn.workers.UvicornWorker", "api:api", "--bind", "0.0.0.0:80"]
