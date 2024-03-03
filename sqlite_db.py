@@ -1,16 +1,16 @@
 import sqlite3
 from pathlib import Path
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 import functools
 
 
 class Player(BaseModel):
-    uid: int | None
+    uid: int | None = Field(default=None)
     name: str
 
 
 class Game(BaseModel):
-    uid: int | None
+    uid: int | None = Field(default=None)
     name: str
     rules: str | None
     date: str
@@ -27,6 +27,7 @@ def create_tables(con: sqlite3.Connection):
     cur.execute(
     """
     CREATE TABLE IF NOT EXISTS Players (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
         name TEXT NOT NULL
     )
     """
@@ -34,6 +35,7 @@ def create_tables(con: sqlite3.Connection):
     cur.execute(
     """
     CREATE TABLE IF NOT EXISTS Games (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
         name TEXT NOT NULL,
         rules TEXT,
         date TEXT NOT NULL,
@@ -64,19 +66,27 @@ def add_player(con: sqlite3.Connection, player_name: str) -> Player:
         (player.name, )
     )
     con.commit()
+    return player
 
 
-def add_game(con: sqlite3.Connection, name: str, rules: str | None, date: str):
+def add_game(con: sqlite3.Connection, name: str, rules: str | None, date: str) -> Game:
     game = Game(name=name, rules=rules, date=date)
     cur = con.cursor()
     cur.execute(
-    """INSERT INTO Games (name, rules, date) VALUES (?, ?, ?)""",
-    (game.name, game.rules, game.date)
+        """INSERT INTO Games (name, rules, date) VALUES (?, ?, ?)""",
+        (game.name, game.rules, game.date)
     )
-    con. commit()
+    con.commit()
+    uid = cur.lastrowid
+    cur.execute("SELECT * FROM Games WHERE id = ?", (uid, ))
+    row = cur.fetchone()
+    game = Game(*row)
+     
+    print(row)
+    return game
 
 
-def get_game_by_name(con: sqlite3.Connection, name: str):
+#def get_game(con: sqlite3.Connection, game: Game) ->:
 
 if __name__=="__main__":
     db_path = Path.cwd()/"sqlitedb.db"
