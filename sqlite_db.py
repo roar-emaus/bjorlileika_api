@@ -1,7 +1,7 @@
 import sqlite3
 import logging
 from pathlib import Path
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field 
 import functools
 
 
@@ -125,13 +125,24 @@ def add_point(con: sqlite3.Connection, player: Player, game: Game, point: int):
     cur = con.cursor()
     cur.execute("SELECT * FROM Games WHERE (name, date) = (?, ?)", (game.name, game.date))
     game_row = cur.fetchone()
-    stored_game = Game.from_tuple(game_row)
+    if game_row:
+        stored_game = Game.from_tuple(game_row)
+    else:
+        raise RuntimeError(f"The game ({game}) does not exist in the database")
 
     cur.execute("SELECT * FROM Players WHERE name = (?)", (player.name, ))
     player_row = cur.fetchone()
-    stored_player = Player.from_tuple(player_row)
+    if player_row:
+        stored_player = Player.from_tuple(player_row)
+    else:
+        raise RuntimeError(f"The player ({player}) does not exist in the database")
 
-    #cur.execute
+    cur.execute(
+            "INSERT INTO Points (game_id, player_id, point) VALUES (?, ?, ?)",
+            (stored_game.uid, stored_player.uid, point)
+    )
+
+    con.commit()
 
 
 if __name__=="__main__":
@@ -139,8 +150,13 @@ if __name__=="__main__":
     db_path = Path.cwd()/"sqlitedb.db"
     con = db_start_up(db_path)
     create_tables(con)
-    stored_player = add_player(con, Player(name="lala"))
-    stored_game = add_game(con, Game(name="lili", rules=None, date="2022-04"))
+    player = Player(name="Rotte")
+    game = Game(name="Løping", rules=None, date="2024-04")
+    stored_player = add_player(con, player)
+    stored_game = add_game(con, game)
+    add_point(con, player, game, 1000)
+    game2 = Game(name="Svømming", rules=None, date="2024-04")
+    add_point(con, player, game2, 100)
     con.close()
 
 
